@@ -87,7 +87,7 @@ export default function Home() {
     <div className="min-h-screen bg-white">
       {/* nav */}
       <nav className="border-b border-gray-200 py-4">
-        <div className="mx-auto flex max-w-2xl items-center justify-between px-6">
+        <div className="mx-auto flex max-w-2xl items-center justify-between px-4 sm:px-6">
           <span className="text-sm font-bold tracking-tight">zigueroutine</span>
           <button
             onClick={() => setCartOpen(!cartOpen)}
@@ -101,47 +101,49 @@ export default function Home() {
       {/* cart dropdown */}
       {cartOpen && (
         <div className="border-b border-gray-200 bg-gray-50">
-          <div className="mx-auto max-w-2xl px-6 py-4">
+          <div className="mx-auto max-w-2xl px-4 sm:px-6 py-4">
             {cart.length === 0 ? (
               <p className="text-sm text-gray-500">Carrinho vazio.</p>
             ) : (
               <>
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
-                      <th className="pb-2 font-normal">Pneu</th>
-                      <th className="pb-2 font-normal text-center">Qtd</th>
-                      <th className="pb-2 font-normal text-right">Subtotal</th>
-                      <th className="pb-2 font-normal text-right"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cart.map((item) => (
-                      <tr key={item.id} className="border-b border-gray-100">
-                        <td className="py-2">{item.name}</td>
-                        <td className="py-2 text-center">{item.qty}</td>
-                        <td className="py-2 text-right">
-                          {(item.price * item.qty).toFixed(2)}&euro;
-                        </td>
-                        <td className="py-2 text-right">
-                          <button
-                            onClick={() => removeFromCart(item.id)}
-                            className="text-gray-400 hover:text-red-500"
-                          >
-                            &minus;
-                          </button>
-                        </td>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
+                        <th className="pb-2 font-normal">Pneu</th>
+                        <th className="pb-2 font-normal text-center">Qtd</th>
+                        <th className="pb-2 font-normal text-right">Subtotal</th>
+                        <th className="pb-2 font-normal text-right"></th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <div className="mt-3 flex items-center justify-between">
+                    </thead>
+                    <tbody>
+                      {cart.map((item) => (
+                        <tr key={item.id} className="border-b border-gray-100">
+                          <td className="py-2">{item.name}</td>
+                          <td className="py-2 text-center">{item.qty}</td>
+                          <td className="py-2 text-right whitespace-nowrap">
+                            {(item.price * item.qty).toFixed(2)}&euro;
+                          </td>
+                          <td className="py-2 text-right">
+                            <button
+                              onClick={() => removeFromCart(item.id)}
+                              className="text-gray-400 hover:text-red-500"
+                            >
+                              &minus;
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-sm font-semibold">
                     Total: {totalPrice.toFixed(2)}&euro;
                   </span>
                   <button
                     onClick={() => setShowOrder(true)}
-                    className="border border-gray-900 bg-gray-900 px-4 py-1.5 text-sm text-white hover:bg-gray-700"
+                    className="w-full border border-gray-900 bg-gray-900 px-4 py-1.5 text-sm text-white hover:bg-gray-700 sm:w-auto"
                   >
                     Finalizar encomenda
                   </button>
@@ -153,7 +155,7 @@ export default function Home() {
       )}
 
       {/* main */}
-      <main className="mx-auto max-w-2xl px-6 py-10">
+      <main className="mx-auto max-w-2xl px-4 sm:px-6 py-10">
         {/* company info */}
         <section className="mb-10">
           <h1 className="mb-4 text-lg font-bold">Zigueroutine</h1>
@@ -174,81 +176,83 @@ export default function Home() {
         {/* tire list */}
         <section>
           <h2 className="mb-4 text-base font-bold">Pneus</h2>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
-                <th className="pb-2 font-normal">Pneu</th>
-                <th className="pb-2 font-normal text-right">Preço</th>
-                <th className="pb-2 font-normal text-right"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(tiresByBrand).map(([brand, brandTires]) => (
-                <Fragment key={brand}>
-                  <tr>
-                    <td
-                      colSpan={3}
-                      className="pt-5 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-400"
-                    >
-                      {brand}
-                    </td>
-                  </tr>
-                  {brandTires.map((tire) => {
-                    const inCart = cart.find((item) => item.id === tire.id);
-                    return (
-                      <tr key={tire.id} className="border-b border-gray-100">
-                        <td className="py-2.5">{tire.name}</td>
-                        <td className="py-2.5 text-right">{tire.price.toFixed(2)}&euro;</td>
-                        <td className="py-2.5 text-right">
-                          {inCart ? (
-                            <span className="inline-flex items-center gap-2">
-                              <button
-                                onClick={() => removeFromCart(tire.id)}
-                                className="text-gray-400 hover:text-gray-900"
-                              >
-                                &minus;
-                              </button>
-                              <input
-                                type="number"
-                                min={0}
-                                value={inCart.qty}
-                                onChange={(e) => {
-                                  const val = parseInt(e.target.value, 10);
-                                  if (isNaN(val)) return;
-                                  setQty(tire.id, val);
-                                }}
-                                className="w-10 border border-gray-200 text-center text-sm outline-none focus:border-gray-900"
-                              />
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
+                  <th className="pb-2 font-normal">Pneu</th>
+                  <th className="pb-2 font-normal text-right whitespace-nowrap">Preço</th>
+                  <th className="pb-2 font-normal text-right"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(tiresByBrand).map(([brand, brandTires]) => (
+                  <Fragment key={brand}>
+                    <tr>
+                      <td
+                        colSpan={3}
+                        className="pt-5 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-400"
+                      >
+                        {brand}
+                      </td>
+                    </tr>
+                    {brandTires.map((tire) => {
+                      const inCart = cart.find((item) => item.id === tire.id);
+                      return (
+                        <tr key={tire.id} className="border-b border-gray-100">
+                          <td className="py-2.5 whitespace-nowrap">{tire.name}</td>
+                          <td className="py-2.5 text-right whitespace-nowrap">{tire.price.toFixed(2)}&euro;</td>
+                          <td className="py-2.5 text-right whitespace-nowrap">
+                            {inCart ? (
+                              <span className="inline-flex items-center gap-1 sm:gap-2">
+                                <button
+                                  onClick={() => removeFromCart(tire.id)}
+                                  className="text-gray-400 hover:text-gray-900"
+                                >
+                                  &minus;
+                                </button>
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={inCart.qty}
+                                  onChange={(e) => {
+                                    const val = parseInt(e.target.value, 10);
+                                    if (isNaN(val)) return;
+                                    setQty(tire.id, val);
+                                  }}
+                                  className="w-10 border border-gray-200 text-center text-sm outline-none focus:border-gray-900"
+                                />
+                                <button
+                                  onClick={() => addToCart(tire)}
+                                  className="text-gray-400 hover:text-gray-900"
+                                >
+                                  +
+                                </button>
+                              </span>
+                            ) : (
                               <button
                                 onClick={() => addToCart(tire)}
-                                className="text-gray-400 hover:text-gray-900"
+                                className="text-gray-400 hover:text-gray-900 hover:underline"
                               >
-                                +
+                                + adicionar
                               </button>
-                            </span>
-                          ) : (
-                            <button
-                              onClick={() => addToCart(tire)}
-                              className="text-gray-400 hover:text-gray-900 hover:underline"
-                            >
-                              + adicionar
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </Fragment>
-              ))}
-            </tbody>
-          </table>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
       </main>
 
       {/* order modal */}
       {showOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="w-full max-w-sm bg-white p-6 shadow-lg">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-sm bg-white p-4 sm:p-6 shadow-lg">
             {ordered ? (
               <div className="text-center">
                 <p className="text-sm font-semibold">Encomenda registada!</p>
