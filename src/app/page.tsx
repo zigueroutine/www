@@ -145,8 +145,12 @@ export default function Home() {
           <span className="text-sm font-bold tracking-tight">zigueroutine</span>
           <button
             onClick={() => setCartOpen(!cartOpen)}
-            className="relative text-sm hover:underline"
+            className="relative flex items-center gap-1.5 text-sm hover:underline"
           >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
             carrinho{totalItems > 0 && ` (${totalItems})`}
           </button>
         </div>
@@ -213,15 +217,16 @@ export default function Home() {
         {/* company info */}
         <section className="mb-10">
           <h1 className="mb-4 text-lg font-bold">Zigueroutine</h1>
+          <p className="mb-3 text-sm text-gray-500">Zigueroutine - Unipessoal Lda</p>
           <div className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
             <span className="text-gray-500">Morada</span>
-            <span>Rua Exemplo 123, 1000-001 Lisboa</span>
+            <span>Rua Alfredo Cunha, N 115 Loja 54, Matosinhos, Porto, 4450-023</span>
             <span className="text-gray-500">NIF</span>
-            <span>123 456 789</span>
+            <span>519136683</span>
             <span className="text-gray-500">Telefone</span>
-            <span>+351 912 345 678</span>
+            <span>+351 915 883 983</span>
             <span className="text-gray-500">Email</span>
-            <span>geral@zigueroutine.pt</span>
+            <span>zigueroutine@gmail.com</span>
           </div>
         </section>
 
