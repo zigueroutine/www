@@ -57,6 +57,9 @@ export default function Home() {
   const [showOrder, setShowOrder] = useState(false);
   const [phone, setPhone] = useState("");
   const [ordered, setOrdered] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [orderError, setOrderError] = useState(false);
+  const [orderCode, setOrderCode] = useState<string | null>(null);
   const [activeList, setActiveList] = useState(0);
 
   function addToCart(tire: Tire) {
@@ -96,16 +99,42 @@ export default function Home() {
   const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-  function handleOrder() {
+  async function handleOrder() {
     if (!phone.trim()) return;
-    setOrdered(true);
-    setCart([]);
-    setPhone("");
-    setTimeout(() => {
-      setOrdered(false);
-      setShowOrder(false);
-      setCartOpen(false);
-    }, 3000);
+    setSending(true);
+    setOrderError(false);
+    try {
+      const res = await fetch("/api/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: phone.trim(),
+          items: cart.map(({ brand, name, price, qty }) => ({
+            brand,
+            name,
+            price,
+            qty,
+          })),
+          total: totalPrice,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setOrderCode(data.code);
+      setOrdered(true);
+      setCart([]);
+      setPhone("");
+      setTimeout(() => {
+        setOrdered(false);
+        setShowOrder(false);
+        setCartOpen(false);
+        setOrderCode(null);
+      }, 3000);
+    } catch {
+      setOrderError(true);
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -304,7 +333,9 @@ export default function Home() {
           <div className="w-full max-w-sm bg-white p-4 sm:p-6 shadow-lg">
             {ordered ? (
               <div className="text-center">
-                <p className="text-sm font-semibold">Encomenda registada!</p>
+                <p className="text-sm font-semibold">
+                  Encomenda <span className="font-bold">{orderCode}</span> registada!
+                </p>
                 <p className="mt-1 text-sm text-gray-500">
                   Entraremos em contacto em breve.
                 </p>
@@ -318,22 +349,33 @@ export default function Home() {
                 <input
                   type="tel"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => {
+                    setPhone(e.target.value);
+                    setOrderError(false);
+                  }}
                   placeholder="+351 9XX XXX XXX"
-                  className="mb-4 w-full border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900"
+                  disabled={sending}
+                  className="mb-4 w-full border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 disabled:opacity-50"
                 />
+                {orderError && (
+                  <p className="mb-3 text-sm text-red-600">
+                    Erro ao enviar encomenda. Tente novamente.
+                  </p>
+                )}
                 <div className="flex gap-2">
                   <button
                     onClick={() => setShowOrder(false)}
-                    className="flex-1 border border-gray-300 py-1.5 text-sm hover:bg-gray-50"
+                    disabled={sending}
+                    className="flex-1 border border-gray-300 py-1.5 text-sm hover:bg-gray-50 disabled:opacity-50"
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={handleOrder}
-                    className="flex-1 border border-gray-900 bg-gray-900 py-1.5 text-sm text-white hover:bg-gray-700"
+                    disabled={sending}
+                    className="flex-1 border border-gray-900 bg-gray-900 py-1.5 text-sm text-white hover:bg-gray-700 disabled:opacity-50"
                   >
-                    Confirmar
+                    {sending ? "A enviar..." : "Confirmar"}
                   </button>
                 </div>
               </>
