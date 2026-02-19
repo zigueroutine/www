@@ -34,7 +34,7 @@ Host github-zigueroutine
 ### 4. Update `.envrc`
 
 ```bash
-export GIT_SSH_COMMAND="ssh -i ~/.ssh/zigueroutine_new -o IdentitiesOnly=yes"
+export GIT_SSH_COMMAND="ssh -i ~/.ssh/zigueroutine_new -o IdentitiesOnly=yes -o ControlMaster=no"
 ```
 
 Then run `direnv allow` to reload.
