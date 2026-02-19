@@ -55,7 +55,9 @@ export default function Home() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [showOrder, setShowOrder] = useState(false);
+  const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
+  const [countryCode, setCountryCode] = useState("+351");
   const [ordered, setOrdered] = useState(false);
   const [sending, setSending] = useState(false);
   const [orderError, setOrderError] = useState(false);
@@ -100,7 +102,7 @@ export default function Home() {
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
   async function handleOrder() {
-    if (!phone.trim()) return;
+    if (!customerName.trim() || !phone.trim()) return;
     setSending(true);
     setOrderError(false);
     try {
@@ -108,7 +110,8 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          phone: phone.trim(),
+          customerName: customerName.trim(),
+          phone: `${countryCode} ${phone.trim()}`,
           items: cart.map(({ brand, name, price, qty }) => ({
             brand,
             name,
@@ -123,6 +126,7 @@ export default function Home() {
       setOrderCode(data.code);
       setOrdered(true);
       setCart([]);
+      setCustomerName("");
       setPhone("");
       setTimeout(() => {
         setOrdered(false);
@@ -349,19 +353,42 @@ export default function Home() {
               <>
                 <h3 className="mb-4 text-sm font-bold">Finalizar encomenda</h3>
                 <label className="mb-1 block text-xs text-gray-500">
-                  Número de telefone
+                  Cliente / Empresa
                 </label>
                 <input
-                  type="tel"
-                  value={phone}
+                  type="text"
+                  value={customerName}
                   onChange={(e) => {
-                    setPhone(e.target.value);
+                    setCustomerName(e.target.value);
                     setOrderError(false);
                   }}
-                  placeholder="+351 9XX XXX XXX"
                   disabled={sending}
                   className="mb-4 w-full border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 disabled:opacity-50"
                 />
+                <label className="mb-1 block text-xs text-gray-500">
+                  Número de telefone
+                </label>
+                <div className="mb-4 flex gap-2">
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    disabled={sending}
+                    className="border border-gray-300 px-2 py-2 text-sm outline-none focus:border-gray-900 disabled:opacity-50"
+                  >
+                    <option value="+351">PT +351</option>
+                    <option value="+34">ES +34</option>
+                  </select>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => {
+                      setPhone(e.target.value);
+                      setOrderError(false);
+                    }}
+                    disabled={sending}
+                    className="w-full border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 disabled:opacity-50"
+                  />
+                </div>
                 {orderError && (
                   <p className="mb-3 text-sm text-red-600">
                     Erro ao enviar encomenda. Tente novamente.

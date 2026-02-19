@@ -31,7 +31,14 @@ async function uniqueCode(): Promise<string> {
 
 export async function POST(request: Request) {
   try {
-    const { phone, items, total } = await request.json();
+    const { customerName, phone, items, total } = await request.json();
+
+    if (!customerName || typeof customerName !== "string" || !customerName.trim()) {
+      return NextResponse.json(
+        { error: "Nome do cliente é obrigatório." },
+        { status: 400 }
+      );
+    }
 
     if (!phone || typeof phone !== "string" || !phone.trim()) {
       return NextResponse.json(
@@ -52,7 +59,7 @@ export async function POST(request: Request) {
     await fs.writeFile(
       path.join(ORDERS_DIR, `${code}.json`),
       JSON.stringify(
-        { code, phone: phone.trim(), items, total, createdAt: new Date().toISOString() },
+        { code, customerName: customerName.trim(), phone: phone.trim(), items, total, createdAt: new Date().toISOString() },
         null,
         2
       )
@@ -72,6 +79,7 @@ export async function POST(request: Request) {
     const html = `
       <div style="font-family:sans-serif;max-width:500px;margin:0 auto">
         <h2 style="margin-bottom:4px">Encomenda ${code}</h2>
+        <p style="color:#666;margin-top:0">Cliente: <strong>${customerName.trim()}</strong></p>
         <p style="color:#666;margin-top:0">Telefone: <strong>${phone.trim()}</strong></p>
         <table style="width:100%;border-collapse:collapse;font-size:14px">
           <thead>
