@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { put } from "@vercel/blob";
 import fs from "node:fs/promises";
 import path from "node:path";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+const IS_PROD = process.env.NODE_ENV === "production";
 const ORDERS_DIR = path.join(process.cwd(), "data", "orders");
 
 function generateCode(): string {
@@ -15,18 +17,19 @@ function generateCode(): string {
   return `${l1}${l2}${digits}`;
 }
 
-async function uniqueCode(): Promise<string> {
-  await fs.mkdir(ORDERS_DIR, { recursive: true });
-  const existing = new Set(
-    (await fs.readdir(ORDERS_DIR))
-      .filter((f) => f.endsWith(".json"))
-      .map((f) => f.replace(".json", ""))
-  );
-  let code = generateCode();
-  while (existing.has(code)) {
-    code = generateCode();
+async function persistOrder(code: string, data: Record<string, unknown>): Promise<void> {
+  if (IS_PROD) {
+    await put(`orders/${code}.json`, JSON.stringify(data, null, 2), {
+      access: "private",
+      contentType: "application/json",
+    });
+  } else {
+    await fs.mkdir(ORDERS_DIR, { recursive: true });
+    await fs.writeFile(
+      path.join(ORDERS_DIR, `${code}.json`),
+      JSON.stringify(data, null, 2)
+    );
   }
-  return code;
 }
 
 export async function POST(request: Request) {
@@ -54,16 +57,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const code = await uniqueCode();
+    const code = generateCode();
 
-    await fs.writeFile(
-      path.join(ORDERS_DIR, `${code}.json`),
-      JSON.stringify(
-        { code, customerName: customerName.trim(), phone: phone.trim(), items, total, createdAt: new Date().toISOString() },
-        null,
-        2
-      )
-    );
+    const orderData = {
+      code,
+      customerName: customerName.trim(),
+      phone: phone.trim(),
+      items,
+      total,
+      createdAt: new Date().toISOString(),
+    };
+
+    await persistOrder(code, orderData);
 
     const rows = items
       .map(
