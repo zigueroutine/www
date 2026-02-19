@@ -11,21 +11,45 @@ type Tire = {
 
 type CartItem = Tire & { qty: number };
 
-const tires: Tire[] = [
-  { id: 1, brand: "Michelin", name: "205/55 R16 91V", price: 62 },
-  { id: 2, brand: "Michelin", name: "195/65 R15 91H", price: 55 },
-  { id: 3, brand: "Michelin", name: "225/45 R17 94W", price: 78 },
-  { id: 4, brand: "Continental", name: "185/60 R15 84T", price: 48 },
-  { id: 5, brand: "Continental", name: "215/55 R17 98W", price: 85 },
-  { id: 6, brand: "Bridgestone", name: "225/40 R18 92Y", price: 95 },
-  { id: 7, brand: "Bridgestone", name: "195/55 R16 87H", price: 58 },
-  { id: 8, brand: "Bridgestone", name: "235/55 R19 105V", price: 110 },
-];
+type TireList = { label: string; tires: Tire[] };
 
-const tiresByBrand = tires.reduce<Record<string, Tire[]>>((acc, tire) => {
-  (acc[tire.brand] ??= []).push(tire);
-  return acc;
-}, {});
+const tireLists: TireList[] = [
+  {
+    label: "Ligeiros",
+    tires: [
+      { id: 1, brand: "Michelin", name: "205/55 R16 91V", price: 62 },
+      { id: 2, brand: "Michelin", name: "195/65 R15 91H", price: 55 },
+      { id: 3, brand: "Michelin", name: "225/45 R17 94W", price: 78 },
+      { id: 4, brand: "Continental", name: "185/60 R15 84T", price: 48 },
+      { id: 5, brand: "Continental", name: "215/55 R17 98W", price: 85 },
+      { id: 6, brand: "Bridgestone", name: "225/40 R18 92Y", price: 95 },
+      { id: 7, brand: "Bridgestone", name: "195/55 R16 87H", price: 58 },
+      { id: 8, brand: "Bridgestone", name: "235/55 R19 105V", price: 110 },
+    ],
+  },
+  {
+    label: "SUV",
+    tires: [
+      { id: 9, brand: "Michelin", name: "235/65 R17 108V", price: 98 },
+      { id: 10, brand: "Michelin", name: "255/55 R18 109V", price: 115 },
+      { id: 11, brand: "Continental", name: "215/65 R16 98H", price: 82 },
+      { id: 12, brand: "Continental", name: "235/60 R18 107V", price: 105 },
+      { id: 13, brand: "Bridgestone", name: "225/65 R17 102H", price: 90 },
+      { id: 14, brand: "Bridgestone", name: "255/50 R19 107Y", price: 130 },
+    ],
+  },
+  {
+    label: "Comerciais",
+    tires: [
+      { id: 15, brand: "Michelin", name: "215/75 R16C 116R", price: 88 },
+      { id: 16, brand: "Michelin", name: "225/70 R15C 112S", price: 75 },
+      { id: 17, brand: "Continental", name: "195/75 R16C 107R", price: 72 },
+      { id: 18, brand: "Continental", name: "235/65 R16C 115R", price: 95 },
+      { id: 19, brand: "Bridgestone", name: "205/75 R16C 110R", price: 80 },
+      { id: 20, brand: "Bridgestone", name: "215/65 R16C 109T", price: 85 },
+    ],
+  },
+];
 
 export default function Home() {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -33,6 +57,7 @@ export default function Home() {
   const [showOrder, setShowOrder] = useState(false);
   const [phone, setPhone] = useState("");
   const [ordered, setOrdered] = useState(false);
+  const [activeList, setActiveList] = useState(0);
 
   function addToCart(tire: Tire) {
     setCart((prev) => {
@@ -176,7 +201,26 @@ export default function Home() {
         {/* tire list */}
         <section>
           <h2 className="mb-4 text-base font-bold">Pneus</h2>
-          <div className="overflow-x-auto">
+          <div className="mb-4 flex flex-wrap gap-2">
+            {tireLists.map((list, i) => (
+              <button
+                key={list.label}
+                onClick={() => setActiveList(i)}
+                className={`text-sm px-2 py-1 ${
+                  i === activeList
+                    ? "font-bold underline underline-offset-4"
+                    : "text-gray-400 hover:text-gray-900"
+                }`}
+              >
+                {list.label}
+              </button>
+            ))}
+          </div>
+          <div
+            key={activeList}
+            className="overflow-x-auto"
+            style={{ animation: "fadeIn 200ms ease-in" }}
+          >
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
@@ -186,7 +230,12 @@ export default function Home() {
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(tiresByBrand).map(([brand, brandTires]) => (
+                {Object.entries(
+                  tireLists[activeList].tires.reduce<Record<string, Tire[]>>((acc, tire) => {
+                    (acc[tire.brand] ??= []).push(tire);
+                    return acc;
+                  }, {})
+                ).map(([brand, brandTires]) => (
                   <Fragment key={brand}>
                     <tr>
                       <td
