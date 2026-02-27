@@ -239,11 +239,13 @@ export default function Home() {
       <main className="mx-auto max-w-2xl px-4 sm:px-6 py-10">
         {/* company info */}
         <section className="mb-10">
-          <h1 className="mb-4 text-lg font-bold">Zigueroutine</h1>
+          <h1 className="mb-4 text-lg font-bold">
+            Zigueroutine — Pneus em Matosinhos
+          </h1>
           <p className="mb-3 text-sm text-gray-500">
             Zigueroutine - Unipessoal Lda
           </p>
-          <div className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
+          <address className="not-italic grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
             <span className="text-gray-500">Morada</span>
             <span>
               Rua Alfredo Cunha, N 115 Loja 54, Matosinhos, Porto, 4450-023
@@ -251,17 +253,21 @@ export default function Home() {
             <span className="text-gray-500">NIF</span>
             <span>519136683</span>
             <span className="text-gray-500">Telefone</span>
-            <span>+351 915 883 983</span>
+            <a href="tel:+351915883983" className="hover:underline">
+              +351 915 883 983
+            </a>
             <span className="text-gray-500">Email</span>
-            <span>zigueroutine@gmail.com</span>
-          </div>
+            <a href="mailto:zigueroutine@gmail.com" className="hover:underline">
+              zigueroutine@gmail.com
+            </a>
+          </address>
         </section>
 
         <hr className="mb-10 border-gray-200" />
 
         {/* tire list */}
         <section>
-          <h2 className="mb-4 text-base font-bold">Pneus</h2>
+          <h2 className="mb-4 text-base font-bold">Pneus disponíveis</h2>
           <div className="mb-4 flex flex-wrap gap-2">
             {tireLists.map((list, i) => (
               <button
