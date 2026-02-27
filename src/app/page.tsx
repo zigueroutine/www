@@ -11,42 +11,41 @@ type Tire = {
 
 type CartItem = Tire & { qty: number };
 
-type TireList = { label: string; tires: Tire[] };
+type TireList = { label: string; ecoValor: number; tires: Tire[] };
 
 const tireLists: TireList[] = [
   {
     label: "Ligeiros",
+    ecoValor: 1.65,
     tires: [
-      { id: 1, brand: "Michelin", name: "205/55 R16 91V", price: 62 },
-      { id: 2, brand: "Michelin", name: "195/65 R15 91H", price: 55 },
-      { id: 3, brand: "Michelin", name: "225/45 R17 94W", price: 78 },
-      { id: 4, brand: "Continental", name: "185/60 R15 84T", price: 48 },
-      { id: 5, brand: "Continental", name: "215/55 R17 98W", price: 85 },
-      { id: 6, brand: "Bridgestone", name: "225/40 R18 92Y", price: 95 },
-      { id: 7, brand: "Bridgestone", name: "195/55 R16 87H", price: 58 },
-      { id: 8, brand: "Bridgestone", name: "235/55 R19 105V", price: 110 },
+      { id: 1, brand: "Michelin", name: "195/65 R15 91V PRIMACY 4", price: 63 },
+      { id: 2, brand: "Michelin", name: "205/55 R16 91V PRIMACY 5", price: 65 },
+      { id: 3, brand: "Michelin", name: "225/45 R17 PILOT SPORT 5", price: 70 },
+      { id: 4, brand: "Michelin", name: "225/40 R18 PILOT SPORT 5", price: 79 },
+      { id: 5, brand: "Kumho", name: "195/65 R15 91H HS52", price: 37 },
+      { id: 6, brand: "Kumho", name: "205/55 R16 91V HS52", price: 39 },
+      { id: 7, brand: "Bridgestone", name: "205/55 R16 91V TURANZA 6", price: 54 },
+      { id: 8, brand: "Bridgestone", name: "225/40 R18 92Y POTENZA SPORT", price: 64 },
+      { id: 9, brand: "Goodyear", name: "205/55 R16 91V EF.GRIP PERF.2", price: 54 },
+      { id: 10, brand: "Goodyear", name: "225/45 R17 91V F1 ASYMMETRIC 6", price: 64 },
     ],
   },
   {
-    label: "SUV",
+    label: "Pesados",
+    ecoValor: 13,
     tires: [
-      { id: 9, brand: "Michelin", name: "235/65 R17 108V", price: 98 },
-      { id: 10, brand: "Michelin", name: "255/55 R18 109V", price: 115 },
-      { id: 11, brand: "Continental", name: "215/65 R16 98H", price: 82 },
-      { id: 12, brand: "Continental", name: "235/60 R18 107V", price: 105 },
-      { id: 13, brand: "Bridgestone", name: "225/65 R17 102H", price: 90 },
-      { id: 14, brand: "Bridgestone", name: "255/50 R19 107Y", price: 130 },
-    ],
-  },
-  {
-    label: "Comerciais",
-    tires: [
-      { id: 15, brand: "Michelin", name: "215/75 R16C 116R", price: 88 },
-      { id: 16, brand: "Michelin", name: "225/70 R15C 112S", price: 75 },
-      { id: 17, brand: "Continental", name: "195/75 R16C 107R", price: 72 },
-      { id: 18, brand: "Continental", name: "235/65 R16C 115R", price: 95 },
-      { id: 19, brand: "Bridgestone", name: "205/75 R16C 110R", price: 80 },
-      { id: 20, brand: "Bridgestone", name: "215/65 R16C 109T", price: 85 },
+      {
+        id: 11,
+        brand: "Michelin",
+        name: "385/65R22.5 160J XTE 3 TL",
+        price: 415,
+      },
+      {
+        id: 12,
+        brand: "Universal",
+        name: "385/65 R22.5 UNKS01 (REMOLQUE-REGIONAL) M+S/3PMSF 164K",
+        price: 174,
+      },
     ],
   },
 ];
@@ -69,7 +68,7 @@ export default function Home() {
       const existing = prev.find((item) => item.id === tire.id);
       if (existing) {
         return prev.map((item) =>
-          item.id === tire.id ? { ...item, qty: item.qty + 1 } : item
+          item.id === tire.id ? { ...item, qty: item.qty + 1 } : item,
         );
       }
       return [...prev, { ...tire, qty: 1 }];
@@ -81,7 +80,7 @@ export default function Home() {
       const existing = prev.find((item) => item.id === id);
       if (existing && existing.qty > 1) {
         return prev.map((item) =>
-          item.id === id ? { ...item, qty: item.qty - 1 } : item
+          item.id === id ? { ...item, qty: item.qty - 1 } : item,
         );
       }
       return prev.filter((item) => item.id !== id);
@@ -94,12 +93,17 @@ export default function Home() {
       return;
     }
     setCart((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, qty } : item))
+      prev.map((item) => (item.id === id ? { ...item, qty } : item)),
     );
   }
 
   const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-  const totalPrice = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const ecoTotal = cart.reduce((sum, item) => {
+    const list = tireLists.find((l) => l.tires.some((t) => t.id === item.id));
+    return sum + (list?.ecoValor ?? 0) * item.qty;
+  }, 0);
+  const totalPrice = (subtotal + ecoTotal) * 1.23;
 
   async function handleOrder() {
     if (!customerName.trim() || !phone.trim()) return;
@@ -151,9 +155,19 @@ export default function Home() {
             onClick={() => setCartOpen(!cartOpen)}
             className="relative flex items-center gap-1.5 text-sm hover:underline"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4"
+            >
+              <circle cx="9" cy="21" r="1" />
+              <circle cx="20" cy="21" r="1" />
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
             </svg>
             carrinho{totalItems > 0 && ` (${totalItems})`}
           </button>
@@ -174,7 +188,9 @@ export default function Home() {
                       <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
                         <th className="pb-2 font-normal">Pneu</th>
                         <th className="pb-2 font-normal text-center">Qtd</th>
-                        <th className="pb-2 font-normal text-right">Subtotal</th>
+                        <th className="pb-2 font-normal text-right">
+                          Subtotal
+                        </th>
                         <th className="pb-2 font-normal text-right"></th>
                       </tr>
                     </thead>
@@ -202,6 +218,9 @@ export default function Home() {
                 <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-sm font-semibold">
                     Total: {totalPrice.toFixed(2)}&euro;
+                    <span className="block text-xs font-normal text-gray-500">
+                      + Eco Valor + IVA
+                    </span>
                   </span>
                   <button
                     onClick={() => setShowOrder(true)}
@@ -221,10 +240,14 @@ export default function Home() {
         {/* company info */}
         <section className="mb-10">
           <h1 className="mb-4 text-lg font-bold">Zigueroutine</h1>
-          <p className="mb-3 text-sm text-gray-500">Zigueroutine - Unipessoal Lda</p>
+          <p className="mb-3 text-sm text-gray-500">
+            Zigueroutine - Unipessoal Lda
+          </p>
           <div className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
             <span className="text-gray-500">Morada</span>
-            <span>Rua Alfredo Cunha, N 115 Loja 54, Matosinhos, Porto, 4450-023</span>
+            <span>
+              Rua Alfredo Cunha, N 115 Loja 54, Matosinhos, Porto, 4450-023
+            </span>
             <span className="text-gray-500">NIF</span>
             <span>519136683</span>
             <span className="text-gray-500">Telefone</span>
@@ -263,16 +286,21 @@ export default function Home() {
               <thead>
                 <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
                   <th className="pb-2 font-normal">Pneu</th>
-                  <th className="pb-2 font-normal text-right whitespace-nowrap">Preço</th>
+                  <th className="pb-2 font-normal text-right whitespace-nowrap">
+                    Preço
+                  </th>
                   <th className="pb-2 font-normal text-right"></th>
                 </tr>
               </thead>
               <tbody>
                 {Object.entries(
-                  tireLists[activeList].tires.reduce<Record<string, Tire[]>>((acc, tire) => {
-                    (acc[tire.brand] ??= []).push(tire);
-                    return acc;
-                  }, {})
+                  tireLists[activeList].tires.reduce<Record<string, Tire[]>>(
+                    (acc, tire) => {
+                      (acc[tire.brand] ??= []).push(tire);
+                      return acc;
+                    },
+                    {},
+                  ),
                 ).map(([brand, brandTires]) => (
                   <Fragment key={brand}>
                     <tr>
@@ -287,8 +315,12 @@ export default function Home() {
                       const inCart = cart.find((item) => item.id === tire.id);
                       return (
                         <tr key={tire.id} className="border-b border-gray-100">
-                          <td className="py-2.5 whitespace-nowrap">{tire.name}</td>
-                          <td className="py-2.5 text-right whitespace-nowrap">{tire.price.toFixed(2)}&euro;</td>
+                          <td className="py-2.5 whitespace-nowrap">
+                            {tire.name}
+                          </td>
+                          <td className="py-2.5 text-right whitespace-nowrap">
+                            {tire.price.toFixed(2)}&euro;
+                          </td>
                           <td className="py-2.5 text-right whitespace-nowrap">
                             {inCart ? (
                               <span className="inline-flex items-center gap-1 sm:gap-2">
@@ -343,7 +375,8 @@ export default function Home() {
             {ordered ? (
               <div className="text-center">
                 <p className="text-sm font-semibold">
-                  Encomenda <span className="font-bold">{orderCode}</span> registada!
+                  Encomenda <span className="font-bold">{orderCode}</span>{" "}
+                  registada!
                 </p>
                 <p className="mt-1 text-sm text-gray-500">
                   Entraremos em contacto em breve.
